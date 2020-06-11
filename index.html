@@ -1,0 +1,106 @@
+<!DOCTYPE HTML>
+
+<head>
+    <title>20171622 박건후 기말 프로젝트</title>
+    
+    <script>
+        
+        var img_num=10;
+        var answerArr=[];
+        var answer_count;
+        
+        function checkAnswer(id, img){
+            for(let i=0;i<answer_count;i++){
+                if(id==answerArr[i]){
+                    console.log("정답입니다.");
+                    img.setAttribute("src", "media/img2.gif");
+                }
+            }
+        }
+        
+        function createAnswer(){
+            answer_count=Math.floor(Math.random() * img_num);
+            for(let i=0;i<answer_count;i++){
+                var choiceValue=Math.floor(Math.random() * img_num);
+                let overlapCheck=false;
+                for(let j=0;j<i;j++){
+                    if(choiceValue==answerArr[j]){
+                        i--;
+                        overlapCheck=true;
+                        break;
+                    }
+                }
+                if(!overlapCheck){
+                    answerArr.push(choiceValue);
+                }
+            }
+        }
+        
+        function createImg(){
+            var scene=document.getElementById("scene_view");
+            for(let i=0;i<10;i++){
+                var eggImg = document.createElement("IMG");
+                eggImg.setAttribute("src", "media/img1.gif");
+                eggImg.setAttribute("id", "egg_img");
+                eggImg.onclick = function(){
+                    checkAnswer(i, this);
+                }
+                scene.appendChild(eggImg);
+            }
+        }
+        
+    </script>
+    
+    <style>
+        body {
+            width: 98%;
+        }
+
+        #game_wrapper {
+            width: 98%;
+            background-color: antiquewhite;
+        }
+        
+        #aside, #scene_view{
+            margin-left: 2%;
+            margin-right: 2%;        
+        }
+
+        #aside {
+            background-color: aqua;
+            width : 15%;
+            height: 100px;
+            float: left;
+        }
+        
+        #scene_view {
+            background-color: aqua;
+            width : 75%;
+            height: 100px;
+            float: left;
+        }
+        
+        img{
+            display: inline;
+        }
+        
+        #egg_img{
+            margin: 3%;
+        }
+        
+        
+    </style>
+</head>
+
+
+<body onload="createAnswer();createImg();">
+    <div id="game_wrapper">
+        <div id="header">Header</div>
+        <div id="nav">Nav</div>
+        <div id="aside">Aside</div>
+        <div id="scene_view">
+            <button onclick="createImg()">dd</button>
+        </div>
+        <div id="footer">Footer</div>
+    </div>
+</body>
