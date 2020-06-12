@@ -2,104 +2,271 @@
 
 <head>
     <title>20171622 박건후 기말 프로젝트</title>
-    
+
     <script>
+        var stageNum = 2;
+        var nowStage = 0;
+
+        var stageAnswerCntArr = [3, 5, 8];
+        var stageCheckAvailArr=[6, 10, 16];
+        var stageWaitingTimeArr=[3000, 5000, 7000];
+
+
+        var answerArr = [];
+
+        var userClickCnt=0;
+        var isClickedStartBtn=false;
+        var userFailClickCnt=0;
         
-        var img_num=10;
-        var answerArr=[];
-        var answer_count;
         
-        function checkAnswer(id, img){
-            for(let i=0;i<answer_count;i++){
-                if(id==answerArr[i]){
-                    console.log("정답입니다.");
+        //[TO-DO] 게임 클리어해서 넘어갈 때 스코어보드 초기화 작업
+        function scoreBoard(){
+            var scene= document.getElementById("board_view");
+            var boardWrapper=document.createElement("div");
+            
+            boardWrapper.setAttribute("id","board_wrapper");
+            
+            
+            var gameStartBtn=document.createElement("button");
+            gameStartBtn.textContent="게임 시작"
+            gameStartBtn.onclick = function() {
+                isClickedStartBtn=true;
+                scene=initScene(scene);
+                init();
+                this.style.display='none';
+            }
+            
+            var restClickView=document.createElement("p");
+            restClickView.textContent="남은 클릭 횟수 : "+String(stageCheckAvailArr[nowStage]-userClickCnt)+"회";
+            
+            var failClickView=document.createElement("p");
+            failClickView.textContent="실패 횟수 : "+userFailClickCnt+"회";
+            
+            
+            var restPuppyView=document.createElement("p");
+            restPuppyView.textContent="남은 강아지 수 : "+answerArr.length+"마리";
+
+            
+            var restTimeView=document.createElement("p");
+            
+            if(isClickedStartBtn==false){
+                boardWrapper.appendChild(gameStartBtn);
+            }
+            
+            boardWrapper.appendChild(restClickView);
+            boardWrapper.appendChild(failClickView);
+            boardWrapper.appendChild(restPuppyView);
+
+            scene.appendChild(boardWrapper);
+            
+        }
+    
+
+        function checkAnswer(id, img) {
+            
+            
+            let isAnswer=false;
+            let answer_count = stageAnswerCntArr[nowStage];
+            for (let i = 0; i < answerArr.length; i++) {
+                if (id == answerArr[0]) {
+                    isAnswer=true;
                     img.setAttribute("src", "media/img2.gif");
+                    answerArr.shift();
                 }
             }
+            
+            userClickCnt++;
+            if(isAnswer==false){
+                userFailClickCnt++;
+            }
+            
+            if(answerArr.length==0){
+                alert("정답을 모두 맞추었습니다!");
+                nowStage++;
+                changeScene("win");
+            }
         }
-        
-        function createAnswer(){
-            answer_count=Math.floor(Math.random() * img_num);
-            for(let i=0;i<answer_count;i++){
-                var choiceValue=Math.floor(Math.random() * img_num);
-                let overlapCheck=false;
-                for(let j=0;j<i;j++){
-                    if(choiceValue==answerArr[j]){
+
+
+        function createAnswer() {
+            let answer_count = stageAnswerCntArr[nowStage];
+            for (let i = 0; i < answer_count; i++) {
+                var choiceValue = Math.floor(Math.random() * 24);
+                let overlapCheck = false;
+                for (let j = 0; j < i; j++) {
+                    if (choiceValue == answerArr[j]) {
                         i--;
-                        overlapCheck=true;
+                        overlapCheck = true;
                         break;
                     }
                 }
-                if(!overlapCheck){
+                if (!overlapCheck) {
                     answerArr.push(choiceValue);
                 }
             }
         }
         
-        function createImg(){
+        function initScene(scene){
+            while ( scene.hasChildNodes() ) {
+                scene.removeChild( scene.firstChild );
+            }
+            return scene;
+        }
+
+        function gameOverScene() {
             var scene=document.getElementById("scene_view");
-            for(let i=0;i<10;i++){
-                var eggImg = document.createElement("IMG");
-                eggImg.setAttribute("src", "media/img1.gif");
-                eggImg.setAttribute("id", "egg_img");
-                eggImg.onclick = function(){
-                    checkAnswer(i, this);
-                }
-                scene.appendChild(eggImg);
+            scene=initScene(scene);
+            var gameOverImg = document.createElement("IMG");
+            gameOverImg.setAttribute("src", "media/gameover.jpg");
+            gameOverImg.setAttribute("id", "gameover_img");
+            
+            scene.appendChild(gameOverImg);
+
+        }
+        
+        function init(){
+            answerArr=[];
+            userClickCnt=0;
+            userFailClickCnt=0;
+            var scene=document.getElementById("scene_view");
+            scene=initScene(scene);
+            createAnswer();
+            createGameScene();
+            scoreBoard();
+        }
+
+        function changeScene(status) {
+            switch(status){
+                case "win":
+                    if(nowStage<=stageNum){
+                        init();
+                    }
+                    else{
+                        alert("축하합니다. 모든 스테이지를 깨셨습니다.");
+                    }
+                    break;
+                case "lose":
+                    gameOverScene();
+                    break;
             }
         }
         
+        
+//        // 게임시작
+//        function createGameScene() {
+//            var scene = document.getElementById("scene_view");
+//            var egg_wrapper = document.createElement("div");
+//            egg_wrapper.setAttribute("id", "egg_wrapper");
+//
+//            let tempAnswerArr = answerArr.slice();
+//            for (let i = 0; i < 24; i++) {
+//                let imgSrc = "media/img1.gif";
+//                for (let j = 0; j < stageAnswerCntArr[nowStage]; j++) {
+//                    if (i==answerArr[j]) {
+//                        imgSrc = "media/egg/egg" + String(j + 1 + ".png");
+//                        break;
+//                    }
+//                }
+//
+//                var eggImg = document.createElement("IMG");
+//                eggImg.setAttribute("src", imgSrc);
+//                eggImg.setAttribute("id", "egg_img");
+//                eggImg.onclick = function() {
+//                    checkAnswer(i, this);
+//                }
+//                egg_wrapper.appendChild(eggImg);
+//            }
+//            scene.appendChild(egg_wrapper);
+//
+//        }
+
+        
+        // 게임 시작
+        function createGameScene() {
+            var scene = document.getElementById("scene_view");
+            var egg_wrapper = document.createElement("div");
+            egg_wrapper.setAttribute("id", "egg_wrapper");
+
+            let tempAnswerArr = answerArr.slice();
+            let tempImgArr=[];
+            for (let i = 0; i < 24; i++) {
+                var eggImg = document.createElement("IMG");
+                eggImg.setAttribute("id", "egg_img");
+                eggImg.onclick = function() {
+                    checkAnswer(i, this);
+                }
+                let imgSrc = "media/img1.gif";
+                for (let j = 0; j < stageAnswerCntArr[nowStage]; j++) {
+                    if (i==answerArr[j]) {
+                        imgSrc = "media/egg/egg" + String(j + 1 + ".png");
+                        eggImg.setAttribute("src", imgSrc);
+                        tempImgArr.push(eggImg);
+                        break;
+                    }
+                }
+                eggImg.setAttribute("src", imgSrc);
+                
+                egg_wrapper.appendChild(eggImg);
+            }
+            scene.appendChild(egg_wrapper);
+            
+            //[TO-DO] 몇 초 뒤 egg로만 구성된 이미지로 바꿔주기
+            setTimeout(function() {
+                for (let j = 0; j < tempImgArr.length; j++) {
+                        let imgSrc = "media/img1.gif";
+                        tempImgArr[j].setAttribute("src", imgSrc);
+                    }
+                },stageWaitingTimeArr[nowStage]);
+        }
+
     </script>
-    
+
     <style>
         body {
             width: 98%;
+            
         }
 
         #game_wrapper {
             width: 98%;
-            background-color: antiquewhite;
-        }
-        
-        #aside, #scene_view{
-            margin-left: 2%;
-            margin-right: 2%;        
+            /*            background-color: antiquewhite;*/
         }
 
-        #aside {
-            background-color: aqua;
-            width : 15%;
-            height: 100px;
-            float: left;
-        }
-        
         #scene_view {
-            background-color: aqua;
-            width : 75%;
-            height: 100px;
+            margin-left: 2%;
+            margin-right: 2%;
+            background-color: #CEFF84;
+            width: 75%;
             float: left;
         }
-        
-        img{
-            display: inline;
+
+        #board_view {
+            background-color: aqua;
+            margin-left: 2%;
+            margin-right: 2%;
+            width: 15%;
+            float: left;
         }
-        
-        #egg_img{
+
+        #egg_img {
+            width: 6%;
             margin: 3%;
         }
-        
-        
+
+        #gameover_img {
+            width: 100%;
+        }
+
     </style>
 </head>
 
 
-<body onload="createAnswer();createImg();">
+<body onload="init()">
     <div id="game_wrapper">
         <div id="header">Header</div>
         <div id="nav">Nav</div>
-        <div id="aside">Aside</div>
+        <div id="board_view"></div>
         <div id="scene_view">
-            <button onclick="createImg()">dd</button>
         </div>
         <div id="footer">Footer</div>
     </div>
