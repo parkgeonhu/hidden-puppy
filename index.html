@@ -5,7 +5,12 @@
     
     <script>
         
-        var img_num=10;
+        var egg_cnt=10;
+        var stageNum=2;
+        var nowStage=0;
+        
+        var stageAnswerCntArr=[3,5,8];
+        
         var answerArr=[];
         var answer_count;
         
@@ -18,10 +23,11 @@
             }
         }
         
+        
         function createAnswer(){
-            answer_count=Math.floor(Math.random() * img_num);
+            answer_count=Math.floor(Math.random() * stageAnswerCntArr[nowStage]);
             for(let i=0;i<answer_count;i++){
-                var choiceValue=Math.floor(Math.random() * img_num);
+                var choiceValue=Math.floor(Math.random() * stageAnswerCntArr[nowStage]);
                 let overlapCheck=false;
                 for(let j=0;j<i;j++){
                     if(choiceValue==answerArr[j]){
@@ -36,9 +42,17 @@
             }
         }
         
+        function gameOverScene(){
+            
+        }
+        
+        function changeScene(var scene){
+            
+        }
+        
         function createImg(){
             var scene=document.getElementById("scene_view");
-            for(let i=0;i<10;i++){
+            for(let i=0;i<24;i++){
                 var eggImg = document.createElement("IMG");
                 eggImg.setAttribute("src", "media/img1.gif");
                 eggImg.setAttribute("id", "egg_img");
@@ -47,6 +61,26 @@
                 }
                 scene.appendChild(eggImg);
             }
+        }
+        
+        
+        function createGameScene(){
+            var scene=document.getElementById("scene_view");
+            
+            var egg_wrapper=document.createElement("div");
+            egg_wrapper.setAttribute("id", "egg_wrapper");
+            
+            for(let i=0;i<24;i++){
+                var eggImg = document.createElement("IMG");
+                eggImg.setAttribute("src", "media/img1.gif");
+                eggImg.setAttribute("id", "egg_img");
+                eggImg.onclick = function(){
+                    checkAnswer(i, this);
+                }
+                egg_wrapper.appendChild(eggImg);
+            }
+            scene.appendChild(egg_wrapper);
+            
         }
         
     </script>
@@ -58,7 +92,7 @@
 
         #game_wrapper {
             width: 98%;
-            background-color: antiquewhite;
+/*            background-color: antiquewhite;*/
         }
         
         #aside, #scene_view{
@@ -74,32 +108,25 @@
         }
         
         #scene_view {
-            background-color: aqua;
+            background-color: #CEFF84;
             width : 75%;
-            height: 100px;
             float: left;
         }
         
-        img{
-            display: inline;
-        }
-        
         #egg_img{
+            width : 6%;
             margin: 3%;
-        }
-        
-        
+        } 
     </style>
 </head>
 
 
-<body onload="createAnswer();createImg();">
+<body onload="createAnswer();createGameScene();">
     <div id="game_wrapper">
         <div id="header">Header</div>
         <div id="nav">Nav</div>
         <div id="aside">Aside</div>
         <div id="scene_view">
-            <button onclick="createImg()">dd</button>
         </div>
         <div id="footer">Footer</div>
     </div>
