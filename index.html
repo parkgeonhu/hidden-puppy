@@ -37,17 +37,21 @@
             }
             
             var restClickView=document.createElement("p");
+            restClickView.setAttribute("id","restClickView");
             restClickView.textContent="남은 클릭 횟수 : "+String(stageCheckAvailArr[nowStage]-userClickCnt)+"회";
             
             var failClickView=document.createElement("p");
+            failClickView.setAttribute("id","failClickView");
             failClickView.textContent="실패 횟수 : "+userFailClickCnt+"회";
             
             
             var restPuppyView=document.createElement("p");
+            restPuppyView.setAttribute("id","restPuppyView");
             restPuppyView.textContent="남은 강아지 수 : "+answerArr.length+"마리";
 
             
             var restTimeView=document.createElement("p");
+            restTimeView.setAttribute("id","restTimeView");
             
             if(isClickedStartBtn==false){
                 boardWrapper.appendChild(gameStartBtn);
@@ -59,6 +63,21 @@
 
             scene.appendChild(boardWrapper);
             
+        }
+        
+        
+        function updateScoreBoard(){
+            
+            if(stageCheckAvailArr[nowStage]-userClickCnt==0){
+                changeScene("lose");
+            }
+            
+            var restClickView=document.getElementById("restClickView");
+            restClickView.textContent="남은 클릭 횟수 : "+String(stageCheckAvailArr[nowStage]-userClickCnt)+"회";
+            var failClickView=document.getElementById("failClickView");
+            failClickView.textContent="실패 횟수 : "+userFailClickCnt+"회";
+            var restPuppyView=document.getElementById("restPuppyView");
+            restPuppyView.textContent="남은 강아지 수 : "+answerArr.length+"마리";
         }
     
 
@@ -79,6 +98,8 @@
             if(isAnswer==false){
                 userFailClickCnt++;
             }
+            
+            updateScoreBoard();
             
             if(answerArr.length==0){
                 alert("정답을 모두 맞추었습니다!");
@@ -114,6 +135,7 @@
         }
 
         function gameOverScene() {
+            console.log("gameover")
             var scene=document.getElementById("scene_view");
             scene=initScene(scene);
             var gameOverImg = document.createElement("IMG");
@@ -128,8 +150,11 @@
             answerArr=[];
             userClickCnt=0;
             userFailClickCnt=0;
-            var scene=document.getElementById("scene_view");
-            scene=initScene(scene);
+            let scene=document.getElementById("scene_view");
+            initScene(scene);
+            
+            scene=document.getElementById("board_view");
+            initScene(scene);
             createAnswer();
             createGameScene();
             scoreBoard();
@@ -152,33 +177,34 @@
         }
         
         
-//        // 게임시작
-//        function createGameScene() {
-//            var scene = document.getElementById("scene_view");
-//            var egg_wrapper = document.createElement("div");
-//            egg_wrapper.setAttribute("id", "egg_wrapper");
-//
-//            let tempAnswerArr = answerArr.slice();
-//            for (let i = 0; i < 24; i++) {
-//                let imgSrc = "media/img1.gif";
-//                for (let j = 0; j < stageAnswerCntArr[nowStage]; j++) {
-//                    if (i==answerArr[j]) {
-//                        imgSrc = "media/egg/egg" + String(j + 1 + ".png");
-//                        break;
-//                    }
-//                }
-//
-//                var eggImg = document.createElement("IMG");
-//                eggImg.setAttribute("src", imgSrc);
-//                eggImg.setAttribute("id", "egg_img");
-//                eggImg.onclick = function() {
-//                    checkAnswer(i, this);
-//                }
-//                egg_wrapper.appendChild(eggImg);
-//            }
-//            scene.appendChild(egg_wrapper);
-//
-//        }
+        // 게임시작
+        function waitingScene() {
+            scoreBoard();
+            var scene = document.getElementById("scene_view");
+            var egg_wrapper = document.createElement("div");
+            egg_wrapper.setAttribute("id", "egg_wrapper");
+
+            let tempAnswerArr = answerArr.slice();
+            for (let i = 0; i < 24; i++) {
+                let imgSrc = "media/img1.gif";
+                for (let j = 0; j < stageAnswerCntArr[nowStage]; j++) {
+                    if (i==answerArr[j]) {
+                        imgSrc = "media/egg/egg" + String(j + 1 + ".png");
+                        break;
+                    }
+                }
+
+                var eggImg = document.createElement("IMG");
+                eggImg.setAttribute("src", imgSrc);
+                eggImg.setAttribute("id", "egg_img");
+                eggImg.onclick = function() {
+                    checkAnswer(i, this);
+                }
+                egg_wrapper.appendChild(eggImg);
+            }
+            scene.appendChild(egg_wrapper);
+
+        }
 
         
         // 게임 시작
@@ -261,7 +287,7 @@
 </head>
 
 
-<body onload="init()">
+<body onload="waitingScene()">
     <div id="game_wrapper">
         <div id="header">Header</div>
         <div id="nav">Nav</div>
