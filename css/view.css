@@ -1,0 +1,55 @@
+ body {
+     background-color: #346633;
+ }
+
+ #board_wrapper {
+     margin-top: 3%;
+     width: 98%;
+     margin: 0 auto;
+ }
+
+ #board_wrapper > h3 {
+     background-color: antiquewhite;
+ }
+
+ body {
+     width: 98%;
+
+ }
+
+ #game_wrapper {
+     margin-top: 1%;
+     width: 98%;
+ }
+
+ #scene_view {
+     margin-left: 2%;
+     margin-right: 2%;
+     background-color: #CEFF84;
+     width: 75%;
+     float: left;
+ }
+
+ #board_view {
+     margin-left: 2%;
+     margin-right: 2%;
+     width: 15%;
+     float: left;
+ }
+
+ #egg_img {
+     width: 6%;
+     margin: 3%;
+ }
+
+ #gameover_img {
+     width: 100%;
+ }
+
+ #header {
+     text-align: center;
+ }
+
+ #header > h2 {
+     color: aliceblue;
+ }
