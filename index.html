@@ -10,6 +10,10 @@
         var stageAnswerCntArr = [3, 5, 8];
         var stageCheckAvailArr=[6, 10, 16];
         var stageWaitingTimeArr=[3000, 5000, 7000];
+        var stageGameTimeArr=[7,12,17];
+        
+        var startTime;
+        var timerId=null;
 
 
         var answerArr = [];
@@ -28,12 +32,18 @@
             
             
             var gameStartBtn=document.createElement("button");
+            gameStartBtn.setAttribute("id","gameStartBtn");
+
             gameStartBtn.textContent="게임 시작"
             gameStartBtn.onclick = function() {
-                isClickedStartBtn=true;
                 scene=initScene(scene);
                 init();
-                this.style.display='none';
+                let gameStartBtn=document.getElementById("gameStartBtn");
+                gameStartBtn.style.display='none';
+                createGameScene();
+                isClickedStartBtn=true;
+                
+                //gameStartBtn.style.display='none';
             }
             
             var restClickView=document.createElement("p");
@@ -48,36 +58,54 @@
             var restPuppyView=document.createElement("p");
             restPuppyView.setAttribute("id","restPuppyView");
             restPuppyView.textContent="남은 강아지 수 : "+answerArr.length+"마리";
-
             
             var restTimeView=document.createElement("p");
             restTimeView.setAttribute("id","restTimeView");
+            restTimeView.textContent="남은 시간 : "+stageGameTimeArr[nowStage]+"초";
             
-            if(isClickedStartBtn==false){
-                boardWrapper.appendChild(gameStartBtn);
-            }
-            
+
+            boardWrapper.appendChild(gameStartBtn);
             boardWrapper.appendChild(restClickView);
             boardWrapper.appendChild(failClickView);
             boardWrapper.appendChild(restPuppyView);
+            boardWrapper.appendChild(restTimeView);
 
             scene.appendChild(boardWrapper);
             
         }
         
+        function getElapseTime(){
+            endTime = new Date();
+            var timeDiff = endTime - startTime; //in ms
+            // strip the ms
+            timeDiff /= 1000;
+
+            // get seconds 
+            var seconds = Math.round(timeDiff);
+            return seconds;
+        }
+        
         
         function updateScoreBoard(){
             
-            if(stageCheckAvailArr[nowStage]-userClickCnt==0){
+            
+            
+            let elapsedTime=stageGameTimeArr[nowStage]-getElapseTime();
+            let restClickCnt=stageCheckAvailArr[nowStage]-userClickCnt;
+            if(restClickCnt<=0 || elapsedTime==0){
+                clearInterval(timerId);
                 changeScene("lose");
             }
             
             var restClickView=document.getElementById("restClickView");
-            restClickView.textContent="남은 클릭 횟수 : "+String(stageCheckAvailArr[nowStage]-userClickCnt)+"회";
+            restClickView.textContent="남은 클릭 횟수 : "+String(restClickCnt)+"회";
             var failClickView=document.getElementById("failClickView");
             failClickView.textContent="실패 횟수 : "+userFailClickCnt+"회";
             var restPuppyView=document.getElementById("restPuppyView");
             restPuppyView.textContent="남은 강아지 수 : "+answerArr.length+"마리";
+            var restTimeView=document.getElementById("restTimeView");
+            restTimeView.textContent="남은 시간 : "+elapsedTime+"초";
+            
         }
     
 
@@ -98,8 +126,6 @@
             if(isAnswer==false){
                 userFailClickCnt++;
             }
-            
-            updateScoreBoard();
             
             if(answerArr.length==0){
                 alert("정답을 모두 맞추었습니다!");
@@ -135,6 +161,7 @@
         }
 
         function gameOverScene() {
+            
             console.log("gameover")
             var scene=document.getElementById("scene_view");
             scene=initScene(scene);
@@ -143,21 +170,22 @@
             gameOverImg.setAttribute("id", "gameover_img");
             
             scene.appendChild(gameOverImg);
-
         }
         
         function init(){
+            clearInterval(timerId);
+            
             answerArr=[];
             userClickCnt=0;
             userFailClickCnt=0;
             let scene=document.getElementById("scene_view");
             initScene(scene);
-            
             scene=document.getElementById("board_view");
             initScene(scene);
             createAnswer();
-            createGameScene();
             scoreBoard();
+            
+
         }
 
         function changeScene(status) {
@@ -165,6 +193,7 @@
                 case "win":
                     if(nowStage<=stageNum){
                         init();
+                        waitingScene();
                     }
                     else{
                         alert("축하합니다. 모든 스테이지를 깨셨습니다.");
@@ -179,27 +208,15 @@
         
         // 게임시작
         function waitingScene() {
-            scoreBoard();
             var scene = document.getElementById("scene_view");
             var egg_wrapper = document.createElement("div");
             egg_wrapper.setAttribute("id", "egg_wrapper");
-
-            let tempAnswerArr = answerArr.slice();
+            
             for (let i = 0; i < 24; i++) {
                 let imgSrc = "media/img1.gif";
-                for (let j = 0; j < stageAnswerCntArr[nowStage]; j++) {
-                    if (i==answerArr[j]) {
-                        imgSrc = "media/egg/egg" + String(j + 1 + ".png");
-                        break;
-                    }
-                }
-
-                var eggImg = document.createElement("IMG");
+                let eggImg = document.createElement("IMG");
                 eggImg.setAttribute("src", imgSrc);
                 eggImg.setAttribute("id", "egg_img");
-                eggImg.onclick = function() {
-                    checkAnswer(i, this);
-                }
                 egg_wrapper.appendChild(eggImg);
             }
             scene.appendChild(egg_wrapper);
@@ -213,36 +230,52 @@
             var egg_wrapper = document.createElement("div");
             egg_wrapper.setAttribute("id", "egg_wrapper");
 
-            let tempAnswerArr = answerArr.slice();
             let tempImgArr=[];
             for (let i = 0; i < 24; i++) {
                 var eggImg = document.createElement("IMG");
                 eggImg.setAttribute("id", "egg_img");
-                eggImg.onclick = function() {
-                    checkAnswer(i, this);
-                }
+                
                 let imgSrc = "media/img1.gif";
                 for (let j = 0; j < stageAnswerCntArr[nowStage]; j++) {
                     if (i==answerArr[j]) {
                         imgSrc = "media/egg/egg" + String(j + 1 + ".png");
                         eggImg.setAttribute("src", imgSrc);
-                        tempImgArr.push(eggImg);
+                        
                         break;
                     }
                 }
+                
+                tempImgArr.push(eggImg);
+                
                 eggImg.setAttribute("src", imgSrc);
                 
                 egg_wrapper.appendChild(eggImg);
             }
             scene.appendChild(egg_wrapper);
             
-            //[TO-DO] 몇 초 뒤 egg로만 구성된 이미지로 바꿔주기
+            
+            
+            
             setTimeout(function() {
-                for (let j = 0; j < tempImgArr.length; j++) {
-                        let imgSrc = "media/img1.gif";
-                        tempImgArr[j].setAttribute("src", imgSrc);
+                for (let i = 0; i < tempImgArr.length; i++) {
+                    let imgSrc = "media/img1.gif";
+//                    for (let j = 0; j < stageAnswerCntArr[nowStage]; j++){
+//                        if (i==answerArr[j]) {
+//                            imgSrc = "media/egg/egg" + String(j + 1 + ".png");
+//                            eggImg.setAttribute("src", imgSrc);    
+//                            break;
+//                        }
+//                    }
+                    tempImgArr[i].setAttribute("src", imgSrc);
+                    tempImgArr[i].onclick = function() {
+                        checkAnswer(i, this);
                     }
-                },stageWaitingTimeArr[nowStage]);
+                }
+                
+                startTime = new Date();
+                timerId=setInterval(updateScoreBoard,1000);
+                
+            },stageWaitingTimeArr[nowStage]);
         }
 
     </script>
@@ -287,7 +320,7 @@
 </head>
 
 
-<body onload="waitingScene()">
+<body onload="init();waitingScene();">
     <div id="game_wrapper">
         <div id="header">Header</div>
         <div id="nav">Nav</div>
